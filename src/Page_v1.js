@@ -7,6 +7,9 @@ class Page_v1 extends React.Component{
 
     constructor(props){
         super(props)
+        this.state = {
+            output_text: '',  // ← 出力エリアの初期値
+        };
         this.handleNextPage = this.handleNextPage.bind(this);
     }
 
@@ -22,6 +25,49 @@ class Page_v1 extends React.Component{
         console.log("学年:", grade);
         console.log("性別:", gender);
         console.log("相談内容:", route);
+
+        let school_string = "未入力"
+        if(school=="middle"){
+            school_string = "中学校"
+        }else if(school=="high"){
+            school_string = "高校"
+        }else if(school=="high_tech"){
+            school_string = "高専"
+        }else if(school=="training"){
+            school_string = "専門学校"
+        }else if(school=="college"){
+            school_string = "大学"
+        }
+
+        let grade_string = "未入力"
+        if(grade=="g1"){
+            grade_string = "1年生"
+        }else if(grade=="g2"){
+            grade_string = "2年生"
+        }else if(grade=="g3"){
+            grade_string = "3年生"
+        }else if(grade=="g4"){
+            grade_string = "4年生"
+        }else if(grade=="g5"){
+            grade_string = "5年生"
+        }
+
+        let gender_string = "未入力"
+        if(gender=="male"){
+            gender_string = "男性"
+        }else if(gender=="female"){
+            gender_string = "女性"
+        }
+
+        let string =`あなたは、高校や、大学の進路相談のプロです。
+私は、${school_string}の${grade_string}で、${gender_string}です。
+自分がやりたいことが分かりません。どうやって進路を決めたら良いですか？
+必要に応じた適切なフレームワーク思考や、テクニックを用いながら、ユーザーの質問に対応してください。
+ また、ユーザー便益の最大化のために情報が不足していれば、事前に質問や確認をしてください。        
+`
+
+        // textareaの出力値を更新
+        this.setState({ output_text: string });
     }
 
     render(){
@@ -117,11 +163,20 @@ class Page_v1 extends React.Component{
                     まだ決まっていないが、何となく不安
                 </label>
                 </fieldset>
-
+                <br />
                 {/* 次へ進むボタン */}
                 <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
                     次の設問に進む
-                </button>
+                </button><br />
+                <br />
+                {/* ベンジャミン先生の処方箋 */}
+                <textarea
+                    name="output_area"
+                    disabled={true}
+                    value={this.state.output_text}
+                    className="form-control"
+                    rows={5}
+                />
             </form>      
             </div>
     }
