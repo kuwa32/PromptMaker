@@ -7,20 +7,35 @@ class Page_v1 extends React.Component{
 
     constructor(props){
         super(props)
+        this.handleNextPage = this.handleNextPage.bind(this);
+    }
+
+    // ボタンが押されたときに実行される関数
+    handleNextPage() {
+        const school = document.querySelector('input[name="school"]:checked')?.value;
+        const grade = document.querySelector('input[name="grade"]:checked')?.value;
+        const gender = document.querySelector('input[name="gender"]:checked')?.value;
+        const route = document.querySelector('input[name="route"]:checked')?.value;
+
+        console.log("選択された値:");
+        console.log("学校:", school);
+        console.log("学年:", grade);
+        console.log("性別:", gender);
+        console.log("相談内容:", route);
     }
 
     render(){
-        return <div class="container mt-3">
-            <h1 class="bg-primary text-white display-4">ミライエ・ユメミルクリニック　処方箋</h1>
+        return <div className="container mt-3">
+            <h1 className="bg-primary text-white display-4">ミライエ・ユメミルクリニック　処方箋</h1>
             <form>
-                <div class="form-group">
-                <legend class="alert alert-primary">お名前（ニックネームでOK！）</legend>
-                <lavel for="student_name"></lavel>
-                <input type="name" class="form-control" id="student_name"></input>
+                <div className="form-group">
+                <legend className="alert alert-primary">お名前（ニックネームでOK！）</legend>
+                <label htmlFor="student_name"></label>
+                <input type="name" className="form-control" id="student_name"></input>
                 </div><br /><br />
                 
                 <fieldset>
-                <legend class="alert alert-primary">学校</legend>
+                <legend className="alert alert-primary">学校</legend>
                 <label>
                     <input type="radio" name="school" value="middle" />
                     中学校
@@ -44,7 +59,7 @@ class Page_v1 extends React.Component{
                 </fieldset>
 
                 <fieldset>
-                <legend class="alert alert-primary">学年</legend>
+                <legend className="alert alert-primary">学年</legend>
                 <label>
                     <input type="radio" name="grade" value="g1" />
                     1年
@@ -59,16 +74,16 @@ class Page_v1 extends React.Component{
                 </label><br />
                 <label>
                     <input type="radio" name="grade" value="g4" />
-                    4年
+                    4年（大学生、高専生用）
                 </label><br />
                 <label>
                     <input type="radio" name="grade" value="g5" />
-                    5年
+                    5年（高専生用）
                 </label>
                 </fieldset>
 
                 <fieldset>
-                <legend class="alert alert-primary">性別</legend>
+                <legend className="alert alert-primary">性別</legend>
                 <label>
                     <input type="radio" name="gender" value="male" />
                     男性
@@ -80,7 +95,7 @@ class Page_v1 extends React.Component{
                 </fieldset>
 
                 <fieldset>
-                <legend class="alert alert-primary">相談したいこと</legend>
+                <legend className="alert alert-primary">相談したいこと</legend>
                 <label>
                     <input type="radio" name="route" value="what_is_next_route" />
                     どうしよう？進路のことを相談したい
@@ -103,10 +118,10 @@ class Page_v1 extends React.Component{
                 </label>
                 </fieldset>
 
-                <br />
-                <button type="submit">送信</button>
-                <br />
-                <h2 class="btn btn-primary">次の設問に進む</h2>
+                {/* 次へ進むボタン */}
+                <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
+                    次の設問に進む
+                </button>
             </form>      
             </div>
     }
