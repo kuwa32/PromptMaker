@@ -12,6 +12,7 @@ class Page_v1 extends React.Component{
             school: '',
             grade: '',
             gender: '',
+            explain_detail: "normal",
             route: '',
             hope: '',
             field: '',
@@ -37,7 +38,9 @@ class Page_v1 extends React.Component{
     handleGenderChange = (e) => {
         this.setState({ gender: e.target.value });
     };
-    
+    handleExplainDetailChange = (event) => {
+        this.setState({ explain_detail: event.target.value });
+    };
     handleRouteChange = (e) => {
         this.setState({ route: e.target.value });
     };    
@@ -81,6 +84,7 @@ class Page_v1 extends React.Component{
         console.log("学校:", this.state.school);
         console.log("学年:", this.state.grade);
         console.log("性別:", this.state.gender);
+        console.log("説明の詳しさ:", this.state.explain_detail);
         console.log("相談内容:", this.state.route);
         console.log("進路:", this.state.hope);
         console.log("分野:", this.state.field);
@@ -125,13 +129,68 @@ class Page_v1 extends React.Component{
             gender_string = "女性"
         }
 
+        let explain_detail_string = ""
+        if(this.state.explain_detail==="simple"){
+            explain_detail_string = "読むのが大変なので、簡単に説明してほしいです。"
+        }else if(this.state.explain_detail==="detailed"){
+            explain_detail_string = "文章が長くても良いので、詳しく説明してほしいです。"
+        }
+
+        let hope_string = "未入力"
+        if(this.state.hope==="next_school"){
+            hope_string = "進学したいと考えています。"
+        }else if(this.state.hope==="get_job"){
+            hope_string = "就職したいと考えています。"
+        }else if(this.state.hope==="unknown"){
+            hope_string = "進学するか、就職するかはまだ決めていないです。"
+        }
+
+        let field_string = ""
+        if (this.state.field === "science") {
+            field_string = "理系の分野に進みたくて、";
+        } else if (this.state.field === "arts") {
+            field_string = "文系の分野に進みたくて、";
+        }else if(this.state.field==="unknown"){
+            field_string = ""
+        }else if(this.state.field==="custom"){
+            field_string = this.state.custom_field_detail + "の分野に進みたくて、"
+        }      
+
         let general_prompt =`あなたは、高校や、大学の進路相談のプロです。
 必要に応じた適切なフレームワーク思考や、テクニックを用いながら、ユーザーの質問に対応してください。
 また、ユーザー便益の最大化のために情報が不足していれば、事前に質問や確認をしてください。
-私は、${school_string}の${grade_string}で、${gender_string}です。
+私は、${school_string}の${grade_string}で、${gender_string}です。${explain_detail_string}
+${field_string}${hope_string}
 `
 
+        let input_school_name_string = ""
+        if(this.state.input_school_name === "custom"){
+            input_school_name_string = this.state.custom_school_name + "に行きたいです。"
+        }
+
+        let input_company_name_string = ""
+        if(this.state.input_company_name === "custom"){
+            input_company_name_string = this.state.custom_company_name + "に行きたいです。"
+        }
+
         let choiced_prompt = ``
+        if(this.state.route==="what_is_next_route"){
+            choiced_prompt=`この先のことを、一緒に考えて欲しいです。
+`
+        }else if(this.state.route==="write_choice_reason"){
+            choiced_prompt=`志望動機を考えるのを手伝ってほしいです。
+`
+        }else if(this.state.route==="write_my_appeal"){
+            choiced_prompt=`自己PRを考えるのを手伝ってほしいです。
+`
+        }else if(this.state.route==="write_business_mail"){
+            choiced_prompt=`メールの文面を考えるのを手伝ってほしいです。
+`
+        }else if(this.state.route==="unknown"){
+            choiced_prompt=`何となく、この先のことが不安なので、助けて欲しいです。
+`
+        }
+
 
         let output_prompt = `${general_prompt}${choiced_prompt}`
 
@@ -237,10 +296,44 @@ class Page_v1 extends React.Component{
                 </label>
                 </fieldset>
 
-                {this.state.route === "what_is_next_route" && (
+                <fieldset>
+                <legend className="alert alert-primary">説明の詳しさ</legend>
+                <label>
+                    <input
+                    type="radio"
+                    name="explain_detail"
+                    value="normal"
+                    checked={this.state.explain_detail === "normal"}
+                    onChange={this.handleExplainDetailChange}
+                    />
+                    普通ぐらいで良い
+                </label><br />
+                <label>
+                    <input
+                    type="radio"
+                    name="explain_detail"
+                    value="simple"
+                    checked={this.state.explain_detail === "simple"}
+                    onChange={this.handleExplainDetailChange}
+                    />
+                    読むのが大変なので、簡単に説明してほしい
+                </label><br />
+                <label>
+                    <input
+                    type="radio"
+                    name="explain_detail"
+                    value="detailed"
+                    checked={this.state.explain_detail === "detailed"}
+                    onChange={this.handleExplainDetailChange}
+                    />
+                    文章が長くても良いので、詳しく説明してほしい
+                </label>          
+                </fieldset>
+
+                {(
                     <>
                         <fieldset>
-                        <legend className="alert alert-primary">進学、就職、どっちにしたい？</legend>
+                        <legend className="alert alert-success">進学、就職、どっちにしたい？</legend>
                         <label>
                             <input type="radio" name="hope" value="next_school" checked={this.state.hope === "next_school"} onChange={this.handleHopeChange} />
                             進学したい
@@ -300,7 +393,7 @@ class Page_v1 extends React.Component{
                             checked={this.state.field === "custom"}
                             onChange={this.handleFieldChange}
                             />
-                            具体的な分野を決めている
+                            こんな分野に進みたい
                         </label>
                         <br />
 
@@ -309,7 +402,7 @@ class Page_v1 extends React.Component{
                             <input
                             type="text"
                             className="form-control mt-2"
-                            placeholder="例：情報工学、心理学 など"
+                            placeholder="例：情報工学、教育、芸術 など"
                             value={this.state.custom_field_detail}
                             onChange={this.handleCustomFieldDetailChange}
                             />
