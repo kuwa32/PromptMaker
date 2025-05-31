@@ -204,7 +204,7 @@ class Page_v1 extends React.Component{
         let choiced_prompt = ``
         if(this.state.route==="what_is_next_route"){
             choiced_prompt=`${field_string}${hope_string}
-この先のことを、一緒に考えて欲しいです。
+進路のことを、一緒に考えて欲しいです。
 `
         }else if(this.state.route==="write_choice_reason"){
             choiced_prompt=`${field_string}${hope_string}
@@ -243,6 +243,21 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
         return <div className="container mt-3">
             <h1 className="display-4 text-center">ミライエ・ユメミルクリニック</h1>
             <h1 className="display-6 text-center">進学・就職科</h1>
+            <br/>
+            <div className="text-center">
+                <img src="/images/forSmartPhone.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
+                <br/>
+                <br/>
+                <h1 className="display-7 text-center">↑↑↑スマホ版こちらです</h1>
+                <br/>
+                <br/>
+                <img src="/images/chatgptcom.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
+                <br/>
+                <br/>
+                <a href="https://chatgpt.com/" className="display-7 text-center">ChatGPTへのリンク　↑↑↑QRを読んでも飛べます</a>
+                <br/>
+                <br/>                
+            </div>
             <br/>
             <form>
                 <fieldset className="card">
@@ -715,7 +730,14 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                             style={{ top: '80px', right: '20px' }}
                                             onClick={this.handleCopy}>
                                         {this.state.copied ? "コピーしました！" : "コピー"}
-                                        </button>  
+                                        </button>
+                                        <div className="text-center">
+                                            <a href={`https://chatgpt.com/?q=${this.state.output_text}`} target="_blank" rel="noopener noreferrer">
+                                                <button type="button" className="btn btn-primary display-7 text-center">
+                                                    このまま、ChatGPTで質問始めるニャ
+                                                </button>
+                                            </a>
+                                        </div>
                                     </div>
                                 </fieldset>
                             </div>      
