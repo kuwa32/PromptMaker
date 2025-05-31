@@ -244,21 +244,6 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
             <h1 className="display-4 text-center">ミライエ・ユメミルクリニック</h1>
             <h1 className="display-6 text-center">進学・就職科</h1>
             <br/>
-            <div className="text-center">
-                <img src="/images/forSmartPhone.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
-                <br/>
-                <br/>
-                <h1 className="display-7 text-center">↑↑↑スマホ版こちらです</h1>
-                <br/>
-                <br/>
-                <img src="/images/chatgptcom.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
-                <br/>
-                <br/>
-                <a href="https://chatgpt.com/" className="display-7 text-center">ChatGPTへのリンク　↑↑↑QRを読んでも飛べます</a>
-                <br/>
-                <br/>                
-            </div>
-            <br/>
             <form>
                 <fieldset className="card">
                     <div className="card-header card-head-yellow">
