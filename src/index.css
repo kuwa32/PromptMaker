@@ -18,12 +18,16 @@ code {
     monospace;
 }
 
-.alert-primary {
-  background-color: #f5be49 !important;  /* お好みの色 */
-  color: #000000 !important;             /* 文字色も適宜調整 */
-}
 
-.alert-success {
-  background-color: #99d9d9 !important;  /* お好みの色 */
-  color: #000000 !important;             /* 文字色も適宜調整 */
+.card-head-yellow {
+  background-color: #f5be49 !important;
+}
+.card-head-brown {
+  background-color: #ddbc9b !important;
+}
+.card-head-blue {
+  background-color: #99d9d9 !important;
+}
+.card-head-red {
+  background-color: #d66049 !important;
 }
