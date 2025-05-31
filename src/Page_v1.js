@@ -1,5 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 
 class Page_v1 extends React.Component{
     link_url = "https://www.google.com/"
@@ -200,7 +201,7 @@ ${field_string}${hope_string}
 
     render(){
         return <div className="container mt-3">
-            <h1 className="bg-primary text-white display-4">ミライエ・ユメミルクリニック　処方箋</h1>
+            <h1 className="alert alert-primary display-4">ミライエ・ユメミルクリニック　処方箋</h1>
             <form>
                 <fieldset>
                 <legend className="alert alert-primary">相談したいこと</legend>

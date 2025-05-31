@@ -1,13 +1,29 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'TsunagiGothic', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #faf2e9 !important;
+}
+
+@font-face {
+  font-family: 'TsunagiGothic';
+  src: url('./fonts/TsunagiGothic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.alert-primary {
+  background-color: #f5be49 !important;  /* お好みの色 */
+  color: #000000 !important;             /* 文字色も適宜調整 */
+}
+
+.alert-success {
+  background-color: #99d9d9 !important;  /* お好みの色 */
+  color: #000000 !important;             /* 文字色も適宜調整 */
 }
