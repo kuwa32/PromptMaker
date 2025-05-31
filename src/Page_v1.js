@@ -23,7 +23,8 @@ class Page_v1 extends React.Component{
             custom_field_detail:'',
             custom_school_name: '',
             custom_company_name: '',
-            custom_mail_purpose: ''
+            custom_mail_purpose: '',
+            copied: false
         };
         this.handleNextPage = this.handleNextPage.bind(this);
     }
@@ -73,6 +74,14 @@ class Page_v1 extends React.Component{
     handleCustomMailPurposeChange = (event) => {
         this.setState({ custom_mail_purpose: event.target.value });
     };
+    handleCopy = () => {
+        console.log("コピー関数起動")
+        navigator.clipboard.writeText(this.state.output_text).then(() => {
+            this.setState({ copied: true });
+        }).catch(err => {
+            console.error("コピーに失敗しました:", err);
+        });
+    };
 
     // ボタンが押されたときに実行される関数
     handleNextPage() {
@@ -96,6 +105,7 @@ class Page_v1 extends React.Component{
         console.log("カスタム入力学校名:", this.state.custom_school_name);
         console.log("カスタム入力企業名:", this.state.custom_company_name);
         console.log("カスタム入力メール目的:", this.state.custom_mail_purpose);        
+        console.log("コピーした？:", this.state.copied);        
 
         let school_string = "未入力"
         if(this.state.school==="middle"){
@@ -664,17 +674,34 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <legend className="card-title">ベンジャミン先生の処方箋</legend>
                         <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
                             先生、お願いします！
-                        </button>                 
+                        </button>
                     </div>
                     <div className="card-body">
                         {/* ベンジャミン先生の処方箋 */}
-                        <textarea
-                            name="output_area"
-                            disabled={true}
-                            value={this.state.output_text}
-                            className="card-text form-control"
-                            rows={10}
-                        />
+                        <div className="position-relative">
+                            <textarea
+                                name="output_area"
+                                disabled={true}
+                                value={this.state.output_text}
+                                className="card-text form-control"
+                                rows={10}
+                            />
+                        </div>
+                        {
+                            (this.state.output_text !== "")
+                            && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className={`btn ${this.state.copied ? "btn-success" : "btn-primary"} position-absolute`}
+                                        style={{ top: '120px', right: '20px' }}
+                                        onClick={this.handleCopy}>
+                                    {this.state.copied ? "コピーしました！" : "コピー"}
+                                    </button>  
+                                </>
+                            )
+                        }
+
                     </div>
                 </fieldset>
 
