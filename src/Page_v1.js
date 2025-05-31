@@ -24,7 +24,8 @@ class Page_v1 extends React.Component{
             custom_school_name: '',
             custom_company_name: '',
             custom_mail_purpose: '',
-            copied: false
+            copied: false,
+            showSpeech: false
         };
         this.handleNextPage = this.handleNextPage.bind(this);
     }
@@ -226,7 +227,16 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
         let output_prompt = `${general_prompt}${choiced_prompt}`
 
         // textareaの出力値を更新
-        this.setState({ output_text: output_prompt });
+        this.setState({
+            output_text: output_prompt,
+        }, () => {
+            // スクロールして処方箋に移動
+            setTimeout(() => {
+                const element = document.getElementById("prescription-card");
+                element?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+
+        });
     }
 
     render(){
@@ -669,42 +679,50 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <br />
                     </>
                 )}
-                <fieldset className="card">
-                    <div className="card-header card-head-yellow">
-                        <legend className="card-title">ベンジャミン先生の処方箋</legend>
-                        <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
-                            先生、お願いします！
-                        </button>
-                    </div>
-                    <div className="card-body">
-                        {/* ベンジャミン先生の処方箋 */}
-                        <div className="position-relative">
-                            <textarea
-                                name="output_area"
-                                disabled={true}
-                                value={this.state.output_text}
-                                className="card-text form-control"
-                                rows={10}
-                            />
-                        </div>
-                        {
-                            (this.state.output_text !== "")
-                            && (
-                                <>
-                                    <button
-                                        type="button"
-                                        className={`btn ${this.state.copied ? "btn-success" : "btn-primary"} position-absolute`}
-                                        style={{ top: '120px', right: '20px' }}
-                                        onClick={this.handleCopy}>
-                                    {this.state.copied ? "コピーしました！" : "コピー"}
-                                    </button>  
-                                </>
-                            )
-                        }
+                <div className="text-center">
+                    <img src="/images/cat_doctor_face.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
+                    <br/>
+                    <br/>
+                    <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
+                        先生、お願いします！
+                    </button>
 
-                    </div>
-                </fieldset>
-
+                </div>
+                <br/>
+                {
+                    (this.state.output_text !== "")
+                    && (
+                        <>
+                            <div id="prescription-card" className="fade-in">
+                                <fieldset className="card">
+                                    <div className="card-header card-head-yellow">
+                                        <legend className="card-title">ベンジャミン先生の処方箋</legend>
+                                    </div>
+                                    <div className="card-body">
+                                        {/* ベンジャミン先生の処方箋 */}
+                                        <div className="position-relative">
+                                            <textarea
+                                                name="output_area"
+                                                disabled={true}
+                                                value={this.state.output_text}
+                                                className="card-text form-control"
+                                                rows={10}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className={`btn ${this.state.copied ? "btn-success" : "btn-primary"} position-absolute`}
+                                            style={{ top: '80px', right: '20px' }}
+                                            onClick={this.handleCopy}>
+                                        {this.state.copied ? "コピーしました！" : "コピー"}
+                                        </button>  
+                                    </div>
+                                </fieldset>
+                            </div>      
+                            
+                        </>
+                    )
+                }
             </form>      
             </div>
     }

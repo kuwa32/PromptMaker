@@ -31,3 +31,13 @@ code {
 .card-head-red {
   background-color: #d66049 !important;
 }
+
+/* アニメーション表示 */
+.fade-in {
+    animation: fadeInCard 0.6s ease-in-out;
+}
+
+@keyframes fadeInCard {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
