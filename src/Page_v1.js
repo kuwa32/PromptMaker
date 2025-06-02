@@ -1,6 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
+import DOMPurify from 'dompurify';
 
 class Page_v1 extends React.Component{
     link_url = "https://www.google.com/"
@@ -225,10 +226,14 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
 
 
         let output_prompt = `${general_prompt}${choiced_prompt}`
+        const sanitized_output_promp = DOMPurify.sanitize(output_prompt);
+
+        console.log(output_prompt)
+        console.log(sanitized_output_promp)
 
         // textareaの出力値を更新
         this.setState({
-            output_text: output_prompt,
+            output_text: sanitized_output_promp,
         }, () => {
             // スクロールして処方箋に移動
             setTimeout(() => {
@@ -680,13 +685,33 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                     </>
                 )}
                 <div className="text-center">
-                    <img src="/images/cat_doctor_face.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }}/>
+                    <div className="position-relative d-inline-block">
+                        <img src="cat_doctor_face.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
+                    </div>
                     <br/>
-                    <br/>
-                    <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
-                        先生、お願いします！
-                    </button>
+                    <br/>                     
+                    {
+                        (false)
+                        && (
+                            <>
+                                <p
+                                    className="position-absolute"
+                                    style={{ top: '0%', left: '-40%' }}
+                                    >
+                                お任せニャ！
+                                </p>
+                                <svg width="200" height="100">
+                                <path d="M10,10 h180 v60 h-40 l-10,20 l-10,-20 h-120 z" fill="#f9f9f9" stroke="#ccc" />
+                                <text x="100" y="45" textAnchor="middle" dominantBaseline="middle" fontWeight="bold">お任せニャ〜♪</text>
+                                </svg>
+                                <img src="/images/fukidashi.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
 
+                            </>
+                        )
+                    }
+                    <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
+                        診察を受ける
+                    </button>
                 </div>
                 <br/>
                 {
