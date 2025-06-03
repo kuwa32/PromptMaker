@@ -60,8 +60,6 @@ class Page_v1 extends React.Component{
         const maxLength = 100;
         const safeValue = value.slice(0, maxLength);  // カット
 
-        console.log("ログ出力");
-
         this.setState(
             prevState => ({
                 customInputs: {
@@ -75,7 +73,7 @@ class Page_v1 extends React.Component{
                     setTimeout(() => {
                         const element = document.getElementById("cat-doctor");
                         element?.scrollIntoView({ behavior: "smooth" });
-                    }, 100);
+                    }, 200);
                 })
             }
         );
@@ -115,6 +113,36 @@ class Page_v1 extends React.Component{
         });
     };
 
+    sendDataToServer = async () => {
+        const localCustomInputs = { ...this.state.customInputs };
+        for (const key in localCustomInputs) {
+            localCustomInputs[key] = this.getSafetyString(localCustomInputs[key]);
+        }
+
+        if(localCustomInputs["record_ok"] !== "ok"){
+            return;
+        }
+
+        const data = {
+            school: localCustomInputs["school"],
+            grade: localCustomInputs["grade"],
+            gender: localCustomInputs["gender"],
+            route: localCustomInputs["route"]
+        };
+        console.log(data);
+
+        const response = await fetch("/api/save_data.php", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        console.log(result);
+    };
+    
     // ボタンが押されたときに実行される関数
     handleNextPage() {
         const localCustomInputs = { ...this.state.customInputs };
@@ -288,6 +316,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
             alert("入力してない項目があるニャ！");
             return;
         }
+
+        this.sendDataToServer();
     }
 
     render(){
@@ -861,6 +891,14 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
 
           
             </form>
+            <p>
+                <div className="text-start">
+                主催：ながおか・若者・しごと機構　<a href="https://www.instagram.com/wakamonokikou/">インスタグラムはこちら</a><br/>
+                </div>
+                <div className="text-end">
+                企画：地域おこし協力隊　桑原崚介　<a href="https://www.instagram.com/kuwabara128/">インスタグラムはこちら</a>
+                </div>
+            </p>
             </div>
     }
 }
