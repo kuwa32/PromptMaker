@@ -41,6 +41,11 @@ code {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+.privacy_policy{
+    font-size: 70%;
+}
+
 /*
 .bubble-text {
   background-image: url("/images/fukidashi.png");

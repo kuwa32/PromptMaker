@@ -2,6 +2,7 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import DOMPurify from 'dompurify';
+const escapeHtml = require('escape-html');
 
 class Page_v1 extends React.Component{
     link_url = "https://www.google.com/"
@@ -10,76 +11,105 @@ class Page_v1 extends React.Component{
     constructor(props){
         super(props)
         this.state = {
-            output_text: '',  // ← 出力エリアの初期値
-            school: '',
-            grade: '',
-            gender: '',
-            explain_detail: "normal",
-            route: '',
-            hope: '',
-            field: '',
-            input_school_name: '',
-            input_company_name: '',
-            mail_purpose: '',
-            custom_field_detail:'',
-            custom_school_name: '',
-            custom_company_name: '',
-            custom_mail_purpose: '',
-            copied: false,
-            showSpeech: false
+            customInputs: {
+                output_text: '',  // ← 出力エリアの初期値
+                school: '',
+                grade: '',
+                gender: '',
+                explain_detail: "normal",
+                route: '',
+                hope: '',
+                field: '',
+                input_school_name: '',
+                input_company_name: '',
+                mail_purpose: '',
+                custom_field_detail:'',
+                custom_school_name: '',
+                custom_company_name: '',
+                custom_mail_purpose: '',
+                copied: false,
+                showSpeech: false,
+                record_ok: 'unknown',
+                custom_record: '',
+            },
+            errors: {
+                school: '',
+                grade: '',
+                gender: '',
+                route: ''
+            }
         };
         this.handleNextPage = this.handleNextPage.bind(this);
     }
 
-    handleSchoolChange = (e) => {
-        this.setState({ school: e.target.value });
+    handleCustomInputChange = (e) => {
+        const { name, value } = e.target;  // name属性を使う
+        const maxLength = 100;
+        const safeValue = value.slice(0, maxLength);  // カット
+
+        this.setState(prevState => ({
+            customInputs: {
+            ...prevState.customInputs,
+            [name]: safeValue,
+            }
+        }));
     };
 
-    handleGradeChange = (e) => {
-        this.setState({ grade: e.target.value });
-    };
-    
-    handleGenderChange = (e) => {
-        this.setState({ gender: e.target.value });
-    };
-    handleExplainDetailChange = (event) => {
-        this.setState({ explain_detail: event.target.value });
-    };
-    handleRouteChange = (e) => {
-        this.setState({ route: e.target.value });
+    handlePrivacyPolicyChange = (e) => {
+        const { name, value } = e.target;  // name属性を使う
+        const maxLength = 100;
+        const safeValue = value.slice(0, maxLength);  // カット
+
+        console.log("ログ出力");
+
+        this.setState(
+            prevState => ({
+                customInputs: {
+                ...prevState.customInputs,
+                [name]: safeValue,
+                }
+            }),
+            ()=>{
+                requestAnimationFrame(() => {
+                    // スクロールして処方箋に移動
+                    setTimeout(() => {
+                        const element = document.getElementById("cat-doctor");
+                        element?.scrollIntoView({ behavior: "smooth" });
+                    }, 100);
+                })
+            }
+        );
     };    
 
-    handleHopeChange = (e) => {
-        this.setState({ hope: e.target.value });
+    validateRequiredInputs = () => {
+        const requiredInputKeys = ['school', 'grade', 'gender', "route"];
+        const newErrors = {};
+
+        requiredInputKeys.forEach(inputKey => {
+            newErrors[inputKey] = this.state.customInputs[inputKey].trim() === '';
+        }); 
+
+        this.setState({ errors: newErrors });
+
+        return !Object.values(newErrors).some(error => error);
     };
-    handleFieldChange = (e) => {
-        this.setState({ field: e.target.value });
-    };
-    handleInputSchoolNameChange = (e) => {
-        this.setState({ input_school_name: e.target.value });
-    };
-    handleInputCompanyNameChange = (e) => {
-        this.setState({ input_company_name: e.target.value });
-    };
-    handleMailPurposeChange = (e) => {
-        this.setState({ mail_purpose: e.target.value });
-    };
-    handleCustomFieldDetailChange = (event) => {
-        this.setState({ custom_field_detail: event.target.value });
-    };
-    handleCustomSchoolNameChange = (event) => {
-        this.setState({ custom_school_name: event.target.value });
-    };
-    handleCustomCompanyNameChange = (event) => {
-        this.setState({ custom_company_name: event.target.value });
-    };
-    handleCustomMailPurposeChange = (event) => {
-        this.setState({ custom_mail_purpose: event.target.value });
-    };
+
+
+    getSafetyString(str){
+        str = DOMPurify.sanitize(str);
+        str = escapeHtml(str);
+        return str;
+    }
+
     handleCopy = () => {
         console.log("コピー関数起動")
-        navigator.clipboard.writeText(this.state.output_text).then(() => {
-            this.setState({ copied: true });
+        navigator.clipboard.writeText(this.state.customInputs.output_text).then(() => {
+            this.setState(prevState => ({
+                customInputs: {
+                ...prevState.customInputs,
+                copied: true,
+                }
+            }));
         }).catch(err => {
             console.error("コピーに失敗しました:", err);
         });
@@ -87,86 +117,71 @@ class Page_v1 extends React.Component{
 
     // ボタンが押されたときに実行される関数
     handleNextPage() {
-//        const school = document.querySelector('input[name="school"]:checked')?.value;
- //       const grade = document.querySelector('input[name="grade"]:checked')?.value;
-  //      const gender = document.querySelector('input[name="gender"]:checked')?.value;
-   //     const route = document.querySelector('input[name="route"]:checked')?.value;
-
-        console.log("選択された値:");
-        console.log("学校:", this.state.school);
-        console.log("学年:", this.state.grade);
-        console.log("性別:", this.state.gender);
-        console.log("説明の詳しさ:", this.state.explain_detail);
-        console.log("相談内容:", this.state.route);
-        console.log("進路:", this.state.hope);
-        console.log("分野:", this.state.field);
-        console.log("学校名:", this.state.input_school_name);
-        console.log("企業名:", this.state.input_company_name);
-        console.log("メール目的:", this.state.mail_purpose);
-        console.log("カスタム入力分野:", this.state.custom_field_detail);
-        console.log("カスタム入力学校名:", this.state.custom_school_name);
-        console.log("カスタム入力企業名:", this.state.custom_company_name);
-        console.log("カスタム入力メール目的:", this.state.custom_mail_purpose);        
-        console.log("コピーした？:", this.state.copied);        
+        const localCustomInputs = { ...this.state.customInputs };
+        for (const key in localCustomInputs) {
+            console.log(key,"：",localCustomInputs[key] );
+            localCustomInputs[key] = this.getSafetyString(localCustomInputs[key]);
+            console.log("safety ", key,"：",localCustomInputs[key] );
+        }
 
         let school_string = "未入力"
-        if(this.state.school==="middle"){
+        if(localCustomInputs.school==="middle"){
             school_string = "中学校"
-        }else if(this.state.school==="high"){
+        }else if(localCustomInputs.school==="high"){
             school_string = "高校"
-        }else if(this.state.school==="high_tech"){
+        }else if(localCustomInputs.school==="high_tech"){
             school_string = "高専"
-        }else if(this.state.school==="training"){
+        }else if(localCustomInputs.school==="training"){
             school_string = "専門学校"
-        }else if(this.state.school==="college"){
+        }else if(localCustomInputs.school==="college"){
             school_string = "大学"
         }
 
         let grade_string = "未入力"
-        if(this.state.grade==="g1"){
+        if(localCustomInputs.grade==="g1"){
             grade_string = "1年生"
-        }else if(this.state.grade==="g2"){
+        }else if(localCustomInputs.grade==="g2"){
             grade_string = "2年生"
-        }else if(this.state.grade==="g3"){
+        }else if(localCustomInputs.grade==="g3"){
             grade_string = "3年生"
-        }else if(this.state.grade==="g4"){
+        }else if(localCustomInputs.grade==="g4"){
             grade_string = "4年生"
-        }else if(this.state.grade==="g5"){
+        }else if(localCustomInputs.grade==="g5"){
             grade_string = "5年生"
         }
 
         let gender_string = "未入力"
-        if(this.state.gender==="male"){
+        if(localCustomInputs.gender==="male"){
             gender_string = "男性"
-        }else if(this.state.gender==="female"){
+        }else if(localCustomInputs.gender==="female"){
             gender_string = "女性"
         }
 
         let explain_detail_string = ""
-        if(this.state.explain_detail==="simple"){
+        if(localCustomInputs.explain_detail==="simple"){
             explain_detail_string = "読むのが大変なので、簡単に説明してほしいです。"
-        }else if(this.state.explain_detail==="detailed"){
+        }else if(localCustomInputs.explain_detail==="detailed"){
             explain_detail_string = "文章が長くても良いので、詳しく説明してほしいです。"
         }
 
         let hope_string = "未入力"
-        if(this.state.hope==="next_school"){
+        if(localCustomInputs.hope==="next_school"){
             hope_string = "進学したいと考えています。"
-        }else if(this.state.hope==="get_job"){
+        }else if(localCustomInputs.hope==="get_job"){
             hope_string = "就職したいと考えています。"
-        }else if(this.state.hope==="unknown"){
+        }else if(localCustomInputs.hope==="unknown"){
             hope_string = "進学するか、就職するかはまだ決めていないです。"
         }
 
         let field_string = ""
-        if (this.state.field === "science") {
+        if (localCustomInputs.field === "science") {
             field_string = "理系の分野に進みたくて、";
-        } else if (this.state.field === "arts") {
+        } else if (localCustomInputs.field === "arts") {
             field_string = "文系の分野に進みたくて、";
-        }else if(this.state.field==="unknown"){
+        }else if(localCustomInputs.field==="unknown"){
             field_string = ""
-        }else if(this.state.field==="custom"){
-            field_string = this.state.custom_field_detail + "の分野に進みたくて、"
+        }else if(localCustomInputs.field==="custom"){
+            field_string = localCustomInputs.custom_field_detail + "の分野に進みたくて、"
         }      
 
         let general_prompt =`あなたは、高校や、大学の進路相談のプロです。
@@ -176,72 +191,103 @@ class Page_v1 extends React.Component{
 `
 
         let input_school_name_string = ""
-        if(this.state.hope === "next_school" && this.state.input_school_name === "custom"){
-            input_school_name_string = `具体的には、${this.state.custom_school_name}に行きたいです。
+        if(localCustomInputs.hope === "next_school" && localCustomInputs.input_school_name === "custom"){
+            input_school_name_string = `具体的には、${localCustomInputs.custom_school_name}に行きたいです。
 `
         }
 
         let input_company_name_string = ""
-        if(this.state.hope === "get_job" && this.state.input_company_name === "custom"){
-            input_company_name_string = `具体的には、${this.state.custom_company_name}に行きたいです。
+        if(localCustomInputs.hope === "get_job" && localCustomInputs.input_company_name === "custom"){
+            input_company_name_string = `具体的には、${localCustomInputs.custom_company_name}に行きたいです。
 `
         }
 
         let mail_purpose_string = ""
-        if(this.state.mail_purpose === "part_time"){
+        if(localCustomInputs.mail_purpose === "part_time"){
             mail_purpose_string = `アルバイト採用試験の応募のためのメールを書きたいです。
 `
-        }else if(this.state.mail_purpose === "intern"){
+        }else if(localCustomInputs.mail_purpose === "intern"){
             mail_purpose_string = `企業にインターンシップの受付をお願いするためのメールを書きたいです。
 `
-        }else if(this.state.mail_purpose === "job"){
+        }else if(localCustomInputs.mail_purpose === "job"){
             mail_purpose_string = `企業に就職試験に応募するためのメールを書きたいです。
 `
-        }else if(this.state.mail_purpose === "other"){
-            mail_purpose_string = `${this.state.custom_mail_purpose}のためのメールを書きたいです。
+        }else if(localCustomInputs.mail_purpose === "other"){
+            mail_purpose_string = `${localCustomInputs.custom_mail_purpose}のためのメールを書きたいです。
 `
         }
 
         let choiced_prompt = ``
-        if(this.state.route==="what_is_next_route"){
+        let choiced_route_for_record=`入力中です。`
+        if(localCustomInputs.route==="what_is_next_route"){
             choiced_prompt=`${field_string}${hope_string}
 進路のことを、一緒に考えて欲しいです。
 `
-        }else if(this.state.route==="write_choice_reason"){
+           choiced_route_for_record="全体的に、進路のことを相談しています。"
+        }else if(localCustomInputs.route==="write_choice_reason"){
             choiced_prompt=`${field_string}${hope_string}
 ${input_school_name_string}${input_company_name_string}志望動機を考えるのを手伝ってほしいです。
 `
-        }else if(this.state.route==="write_my_appeal"){
+           choiced_route_for_record="志望動機に何を書けば良いか、相談しています。"
+        }else if(localCustomInputs.route==="write_my_appeal"){
             choiced_prompt=`${field_string}${hope_string}
 ${input_school_name_string}${input_company_name_string}自己PRを考えるのを手伝ってほしいです。
 `
-        }else if(this.state.route==="write_business_mail"){
+           choiced_route_for_record="強みや弱み、自己PRについて相談しています。"
+        }else if(localCustomInputs.route==="write_business_mail"){
             choiced_prompt=`${mail_purpose_string}メールの文面を考えるのを手伝ってほしいです。
 `
-        }else if(this.state.route==="unknown"){
+           choiced_route_for_record="ビジネスメールの書き方を相談しています。"
+        }else if(localCustomInputs.route==="unknown"){
             choiced_prompt=`${field_string}${hope_string}
 何となく、この先のことが不安なので、助けて欲しいです。
 `
+           choiced_route_for_record="何となく不安を感じています。"
         }
 
 
         let output_prompt = `${general_prompt}${choiced_prompt}`
-        const sanitized_output_promp = DOMPurify.sanitize(output_prompt);
+        const safety_output_prompt = this.getSafetyString(output_prompt);
 
         console.log(output_prompt)
-        console.log(sanitized_output_promp)
+        console.log(safety_output_prompt)
 
         // textareaの出力値を更新
+        /*
         this.setState({
-            output_text: sanitized_output_promp,
+            output_text: safety_output_prompt,
         }, () => {
             // スクロールして処方箋に移動
             setTimeout(() => {
                 const element = document.getElementById("prescription-card");
                 element?.scrollIntoView({ behavior: "smooth" });
             }, 100);
-
         });
+        */
+
+        let record_string=`${school_string}の${grade_string}で、${gender_string}の方が、${choiced_route_for_record}`
+
+        this.setState(prevState => ({
+            customInputs: {
+            ...prevState.customInputs,
+            output_text: safety_output_prompt,
+            custom_record: record_string
+            }
+        }), ()=>{
+            // スクロールして処方箋に移動
+            setTimeout(() => {
+                const element = document.getElementById("prescription-card");
+                element?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        });
+
+        const isValid = this.validateRequiredInputs();
+
+        if (!isValid) {
+            // エラーがあった場合の処理
+            alert("入力してない項目があるニャ！");
+            return;
+        }
     }
 
     render(){
@@ -255,24 +301,25 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <legend className="card-title">相談したいこと</legend>
                     </div>
                     <div className="card-body">
+                        {this.state.errors.route && <p style={{ color: 'red' }}>※ 入力して欲しいニャ</p>}
                         <label>
-                            <input className="card-text" type="radio" name="route" value="what_is_next_route" checked={this.state.route === "what_is_next_route"} onChange={this.handleRouteChange} />
+                            <input className="card-text" type="radio" name="route" value="what_is_next_route" checked={this.state.customInputs.route === "what_is_next_route"} onChange={this.handleCustomInputChange} />
                             全体的に、進路のことを相談したい
                         </label><br />
                         <label>
-                            <input type="radio" name="route" value="write_choice_reason" checked={this.state.route === "write_choice_reason"} onChange={this.handleRouteChange} />
+                            <input type="radio" name="route" value="write_choice_reason" checked={this.state.customInputs.route === "write_choice_reason"} onChange={this.handleCustomInputChange} />
                             志望動機に何を書けば良いか、相談したい
                         </label><br />
                         <label>
-                            <input type="radio" name="route" value="write_my_appeal" checked={this.state.route === "write_my_appeal"} onChange={this.handleRouteChange} />
+                            <input type="radio" name="route" value="write_my_appeal" checked={this.state.customInputs.route === "write_my_appeal"} onChange={this.handleCustomInputChange} />
                             強みや弱み、自己PRについて相談したい
                         </label><br />
                         <label>
-                            <input type="radio" name="route" value="write_business_mail" checked={this.state.route === "write_business_mail"} onChange={this.handleRouteChange} />
+                            <input type="radio" name="route" value="write_business_mail" checked={this.state.customInputs.route === "write_business_mail"} onChange={this.handleCustomInputChange} />
                             ビジネスメールの書き方を相談したい
                         </label><br />
                         <label>
-                        <input type="radio" name="route" value="unknown" checked={this.state.route === "unknown"} onChange={this.handleRouteChange} />
+                        <input type="radio" name="route" value="unknown" checked={this.state.customInputs.route === "unknown"} onChange={this.handleCustomInputChange} />
                             まだ決まっていないが、何となく不安
                         </label>
                     </div>
@@ -283,24 +330,25 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <legend className="card-title">通っている学校について</legend>
                     </div>
                     <div className="card-body">
+                        {this.state.errors.school && <p style={{ color: 'red' }}>※ 入力して欲しいニャ</p>}
                         <label>
-                            <input className="card-text" type="radio" name="school" value="middle" checked={this.state.school === "middle"} onChange={this.handleSchoolChange} />
+                            <input className="card-text" type="radio" name="school" value="middle" checked={this.state.customInputs.school === "middle"} onChange={this.handleCustomInputChange} />
                             中学校
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="school" value="high" checked={this.state.school === "high"} onChange={this.handleSchoolChange} />
+                            <input className="card-text" type="radio" name="school" value="high" checked={this.state.customInputs.school === "high"} onChange={this.handleCustomInputChange} />
                             高校
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="school" value="high_tech" checked={this.state.school === "high_tech"} onChange={this.handleSchoolChange} />
+                            <input className="card-text" type="radio" name="school" value="high_tech" checked={this.state.customInputs.school === "high_tech"} onChange={this.handleCustomInputChange} />
                             高専
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="school" value="training" checked={this.state.school === "training"} onChange={this.handleSchoolChange} />
+                            <input className="card-text" type="radio" name="school" value="training" checked={this.state.customInputs.school === "training"} onChange={this.handleCustomInputChange} />
                             専門学校
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="school" value="college" checked={this.state.school === "college"} onChange={this.handleSchoolChange} />
+                            <input className="card-text" type="radio" name="school" value="college" checked={this.state.customInputs.school === "college"} onChange={this.handleCustomInputChange} />
                             大学
                         </label>
                     </div>
@@ -311,32 +359,33 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <legend className="card-title">学年について</legend>
                     </div>
                     <div className="card-body">
+                        {this.state.errors.grade && <p style={{ color: 'red' }}>※ 入力して欲しいニャ</p>}
                         <label>
-                            <input className="card-text" type="radio" name="grade" value="g1" checked={this.state.grade === "g1"} onChange={this.handleGradeChange} />
+                            <input className="card-text" type="radio" name="grade" value="g1" checked={this.state.customInputs.grade === "g1"} onChange={this.handleCustomInputChange} />
                             １年生
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="grade" value="g2" checked={this.state.grade === "g2"} onChange={this.handleGradeChange} />
+                            <input className="card-text" type="radio" name="grade" value="g2" checked={this.state.customInputs.grade === "g2"} onChange={this.handleCustomInputChange} />
                             ２年生
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="grade" value="g3" checked={this.state.grade === "g3"} onChange={this.handleGradeChange} />
+                            <input className="card-text" type="radio" name="grade" value="g3" checked={this.state.customInputs.grade === "g3"} onChange={this.handleCustomInputChange} />
                             ３年生
                         </label><br />
 
                         {/* 中学校でない場合のみ表示 */}
-                        {(this.state.school === "high_tech" || this.state.school === "college") && (
+                        {(this.state.customInputs.school === "high_tech" || this.state.customInputs.school === "college") && (
                             <>
                             <label>
-                                <input className="card-text" type="radio" name="grade" value="g4" checked={this.state.grade === "g4"} onChange={this.handleGradeChange} />
+                                <input className="card-text" type="radio" name="grade" value="g4" checked={this.state.customInputs.grade === "g4"} onChange={this.handleCustomInputChange} />
                                 ４年生（大学生、高専生用）
                             </label><br />
                             </>
                         )}
-                        {this.state.school === "high_tech" && (
+                        {this.state.customInputs.school === "high_tech" && (
                             <>
                             <label>
-                                <input className="card-text" type="radio" name="grade" value="g5" checked={this.state.grade === "g5"} onChange={this.handleGradeChange} />
+                                <input className="card-text" type="radio" name="grade" value="g5" checked={this.state.customInputs.grade === "g5"} onChange={this.handleCustomInputChange} />
                                 ５年生（高専生用）
                             </label><br />
                             </>
@@ -349,16 +398,16 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <legend className="card-title">性別について</legend>
                     </div>
                     <div className="card-body">
+                        {this.state.errors.gender && <p style={{ color: 'red' }}>※ 入力して欲しいニャ</p>}
                         <label>
-                            <input className="card-text" type="radio" name="gender" value="male" checked={this.state.gender === "male"} onChange={this.handleGenderChange} />
+                            <input className="card-text" type="radio" name="gender" value="male" checked={this.state.customInputs.gender === "male"} onChange={this.handleCustomInputChange} />
                             男性
                         </label><br />
                         <label>
-                            <input className="card-text" type="radio" name="gender" value="female" checked={this.state.gender === "female"} onChange={this.handleGenderChange} />
+                            <input className="card-text" type="radio" name="gender" value="female" checked={this.state.customInputs.gender === "female"} onChange={this.handleCustomInputChange} />
                             女性
                         </label>
                     </div>
-
                 </fieldset>
                 <br />  
                 <fieldset className="card">
@@ -372,8 +421,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                             type="radio"
                             name="explain_detail"
                             value="normal"
-                            checked={this.state.explain_detail === "normal"}
-                            onChange={this.handleExplainDetailChange}
+                            checked={this.state.customInputs.explain_detail === "normal"}
+                            onChange={this.handleCustomInputChange}
                             />
                             普通ぐらいで良い
                         </label><br />
@@ -383,8 +432,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                             type="radio"
                             name="explain_detail"
                             value="simple"
-                            checked={this.state.explain_detail === "simple"}
-                            onChange={this.handleExplainDetailChange}
+                            checked={this.state.customInputs.explain_detail === "simple"}
+                            onChange={this.handleCustomInputChange}
                             />
                             読むのが大変なので、簡単に説明してほしい
                         </label><br />
@@ -394,8 +443,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                             type="radio"
                             name="explain_detail"
                             value="detailed"
-                            checked={this.state.explain_detail === "detailed"}
-                            onChange={this.handleExplainDetailChange}
+                            checked={this.state.customInputs.explain_detail === "detailed"}
+                            onChange={this.handleCustomInputChange}
                             />
                             文章が長くても良いので、詳しく説明してほしい
                         </label>          
@@ -405,7 +454,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                 <br />
                 {
                 (
-                (this.state.route === "what_is_next_route") || (this.state.route === "write_choice_reason") || (this.state.route === "write_my_appeal") || (this.state.route === "unknown")
+                (this.state.customInputs.route === "what_is_next_route") || (this.state.customInputs.route === "write_choice_reason") || (this.state.customInputs.route === "write_my_appeal") || (this.state.customInputs.route === "unknown")
                 )&& (
                     <>
                         <fieldset className="card">
@@ -414,15 +463,15 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                             </div>
                             <div className="card-body">
                                 <label>
-                                    <input type="radio" name="hope" value="next_school" checked={this.state.hope === "next_school"} onChange={this.handleHopeChange} />
+                                    <input type="radio" name="hope" value="next_school" checked={this.state.customInputs.hope === "next_school"} onChange={this.handleCustomInputChange} />
                                     進学したい
                                 </label><br />
                                 <label>
-                                    <input type="radio" name="hope" value="get_job" checked={this.state.hope === "get_job"} onChange={this.handleHopeChange} />
+                                    <input type="radio" name="hope" value="get_job" checked={this.state.customInputs.hope === "get_job"} onChange={this.handleCustomInputChange} />
                                     就職したい
                                 </label><br />
                                 <label>
-                                    <input type="radio" name="hope" value="unknown" checked={this.state.hope === "unknown"} onChange={this.handleHopeChange} />
+                                    <input type="radio" name="hope" value="unknown" checked={this.state.customInputs.hope === "unknown"} onChange={this.handleCustomInputChange} />
                                     まだ決めていない
                                 </label>
                             </div>
@@ -433,7 +482,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                 )}
                 {
                 (
-                (this.state.route === "what_is_next_route") || (this.state.route === "write_choice_reason")|| (this.state.route === "write_my_appeal")
+                (this.state.customInputs.route === "what_is_next_route") || (this.state.customInputs.route === "write_choice_reason")|| (this.state.customInputs.route === "write_my_appeal")
                 )&& (
                     <>
                         <fieldset className="card">
@@ -447,8 +496,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="field"
                                     value="science"
-                                    checked={this.state.field === "science"}
-                                    onChange={this.handleFieldChange}
+                                    checked={this.state.customInputs.field === "science"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     理系
                                 </label><br />
@@ -458,8 +507,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="field"
                                     value="arts"
-                                    checked={this.state.field === "arts"}
-                                    onChange={this.handleFieldChange}
+                                    checked={this.state.customInputs.field === "arts"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     文系
                                 </label><br />
@@ -469,8 +518,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="field"
                                     value="unknown"
-                                    checked={this.state.field === "unknown"}
-                                    onChange={this.handleFieldChange}
+                                    checked={this.state.customInputs.field === "unknown"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     決めていない
                                 </label><br />
@@ -481,21 +530,22 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="field"
                                     value="custom"
-                                    checked={this.state.field === "custom"}
-                                    onChange={this.handleFieldChange}
+                                    checked={this.state.customInputs.field === "custom"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     こんな分野に進みたい
                                 </label>
                                 <br />
 
                                 {/* 入力フィールド（選択時のみ表示） */}
-                                {this.state.field === "custom" && (
+                                {this.state.customInputs.field === "custom" && (
                                     <input
-                                    className="card-text form-control mt-2" 
+                                    className="card-text form-control mt-2"
+                                    name="custom_field_detail"
                                     type="text"
                                     placeholder="どんな分野か教えてください。例：情報工学、教育、芸術 など"
-                                    value={this.state.custom_field_detail}
-                                    onChange={this.handleCustomFieldDetailChange}
+                                    value={this.state.customInputs.custom_field_detail}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                 )}
                             </div>
@@ -506,8 +556,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                     </>
                 )}                
                 {
-                ((this.state.route === "write_choice_reason")|| (this.state.route === "write_my_appeal"))
-                && (this.state.hope === "next_school")
+                ((this.state.customInputs.route === "write_choice_reason")|| (this.state.customInputs.route === "write_my_appeal"))
+                && (this.state.customInputs.hope === "next_school")
                  && (
                     <>
                         <fieldset className="card">
@@ -522,8 +572,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="input_school_name"
                                     value="undecided"
-                                    checked={this.state.input_school_name === "undecided"}
-                                    onChange={this.handleInputSchoolNameChange}
+                                    checked={this.state.customInputs.input_school_name === "undecided"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     これから決める
                                 </label><br />
@@ -535,20 +585,21 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="input_school_name"
                                     value="custom"
-                                    checked={this.state.input_school_name === "custom"}
-                                    onChange={this.handleInputSchoolNameChange}
+                                    checked={this.state.customInputs.input_school_name === "custom"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     こんな学校に行きたい
                                 </label><br />
 
                                 {/* 学校名入力欄（選ばれたときだけ表示） */}
-                                {this.state.input_school_name === "custom" && (
+                                {this.state.customInputs.input_school_name === "custom" && (
                                     <input
                                     type="text"
+                                    name="custom_school_name"
                                     className="card-text form-control mt-2"
                                     placeholder="具体的な学校名や、大体のイメージを入力してください"
-                                    value={this.state.custom_school_name}
-                                    onChange={this.handleCustomSchoolNameChange}
+                                    value={this.state.customInputs.custom_school_name}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                 )}
                             </div>
@@ -559,8 +610,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                     </>
                 )}
                 {
-                ((this.state.route === "write_choice_reason")|| (this.state.route === "write_my_appeal"))
-                && (this.state.hope === "get_job")
+                ((this.state.customInputs.route === "write_choice_reason")|| (this.state.customInputs.route === "write_my_appeal"))
+                && (this.state.customInputs.hope === "get_job")
                  && (
                     <>
                         <fieldset className="card">
@@ -575,8 +626,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="input_company_name"
                                     value="undecided"
-                                    checked={this.state.input_company_name === "undecided"}
-                                    onChange={this.handleInputCompanyNameChange}
+                                    checked={this.state.customInputs.input_company_name === "undecided"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     これから決める
                                 </label><br />
@@ -588,20 +639,21 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="input_company_name"
                                     value="custom"
-                                    checked={this.state.input_company_name === "custom"}
-                                    onChange={this.handleInputCompanyNameChange}
+                                    checked={this.state.customInputs.input_company_name === "custom"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     こんな会社に行きたい
                                 </label><br />
 
                                 {/* 企業名入力欄（選ばれたときだけ表示） */}
-                                {this.state.input_company_name === "custom" && (
+                                {this.state.customInputs.input_company_name === "custom" && (
                                     <input
                                     type="text"
+                                    name="custom_company_name"
                                     className="card-text form-control mt-2"
                                     placeholder="具体的な会社の名前や、大体のイメージを入力してください"
-                                    value={this.state.custom_company_name}
-                                    onChange={this.handleCustomCompanyNameChange}
+                                    value={this.state.customInputs.custom_company_name}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                 )}
                             </div>
@@ -612,7 +664,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                     </>
                 )}
                 {
-                (this.state.route === "write_business_mail")
+                (this.state.customInputs.route === "write_business_mail")
                 && (
                     <>
                         <fieldset className="card">
@@ -626,8 +678,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="mail_purpose"
                                     value="part_time"
-                                    checked={this.state.mail_purpose === "part_time"}
-                                    onChange={this.handleMailPurposeChange}
+                                    checked={this.state.customInputs.mail_purpose === "part_time"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     アルバイトの採用試験のため
                                 </label><br />
@@ -638,8 +690,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="mail_purpose"
                                     value="intern"
-                                    checked={this.state.mail_purpose === "intern"}
-                                    onChange={this.handleMailPurposeChange}
+                                    checked={this.state.customInputs.mail_purpose === "intern"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     インターンシップのお願いのため
                                 </label><br />
@@ -650,8 +702,8 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="mail_purpose"
                                     value="job"
-                                    checked={this.state.mail_purpose === "job"}
-                                    onChange={this.handleMailPurposeChange}
+                                    checked={this.state.customInputs.mail_purpose === "job"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     就職試験を受けるため
                                 </label><br />
@@ -662,19 +714,20 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     type="radio"
                                     name="mail_purpose"
                                     value="other"
-                                    checked={this.state.mail_purpose === "other"}
-                                    onChange={this.handleMailPurposeChange}
+                                    checked={this.state.customInputs.mail_purpose === "other"}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                     その他の目的のため
                                 </label><br />
 
-                                {this.state.mail_purpose === "other" && (
+                                {this.state.customInputs.mail_purpose === "other" && (
                                     <input
                                     type="text"
+                                    name="custom_mail_purpose"
                                     className="card-text form-control mt-2"
                                     placeholder="なんのためにメールを書きたいですか？"
-                                    value={this.state.custom_mail_purpose}
-                                    onChange={this.handleCustomMailPurposeChange}
+                                    value={this.state.customInputs.custom_mail_purpose}
+                                    onChange={this.handleCustomInputChange}
                                     />
                                 )}
                             </div>
@@ -684,38 +737,68 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                         <br />
                     </>
                 )}
-                <div className="text-center">
-                    <div className="position-relative d-inline-block">
-                        <img src="cat_doctor_face.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
-                    </div>
-                    <br/>
-                    <br/>                     
-                    {
-                        (false)
-                        && (
-                            <>
-                                <p
-                                    className="position-absolute"
-                                    style={{ top: '0%', left: '-40%' }}
-                                    >
-                                お任せニャ！
-                                </p>
-                                <svg width="200" height="100">
-                                <path d="M10,10 h180 v60 h-40 l-10,20 l-10,-20 h-120 z" fill="#f9f9f9" stroke="#ccc" />
-                                <text x="100" y="45" textAnchor="middle" dominantBaseline="middle" fontWeight="bold">お任せニャ〜♪</text>
-                                </svg>
-                                <img src="/images/fukidashi.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
 
-                            </>
-                        )
-                    }
-                    <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
-                        診察を受ける
-                    </button>
-                </div>
-                <br/>
+                <fieldset className="card">
+                    <div className="card-header card-head-red">
+                        <legend className="card-title">サービス品質向上のため、入力情報を記録して良いですか？　<a href="../privacy_policy.html" className="privacy_policy">プライバシーポリシー</a></legend>
+                    </div>
+                    <div className="card-body">
+                        <label>
+                            <input className="card-text" type="radio" name="record_ok" value="ok" checked={this.state.customInputs.record_ok === "ok"} onChange={this.handlePrivacyPolicyChange} />
+                            記録してよい
+                        </label><br />
+                        <label>
+                            <input className="card-text" type="radio" name="record_ok" value="ng" checked={this.state.customInputs.record_ok === "ng"} onChange={this.handlePrivacyPolicyChange} />
+                            記録しないで欲しい
+                        </label>
+                    </div>
+                </fieldset>
+                <br />  
+
                 {
-                    (this.state.output_text !== "")
+                    (this.state.customInputs.record_ok !== "unknown")
+                    &&(
+                        <>
+                            <div id="cat-doctor" className="fade-in" >
+                                <div className="text-center ">
+                                    <div className="position-relative d-inline-block">
+                                        <img src="cat_doctor_face.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
+                                    </div>
+                                    <br/>
+                                    <br/>                     
+                                    {
+                                        (false)
+                                        && (
+                                            <>
+                                                <p
+                                                    className="position-absolute"
+                                                    style={{ top: '0%', left: '-40%' }}
+                                                    >
+                                                お任せニャ！
+                                                </p>
+                                                <svg width="200" height="100">
+                                                <path d="M10,10 h180 v60 h-40 l-10,20 l-10,-20 h-120 z" fill="#f9f9f9" stroke="#ccc" />
+                                                <text x="100" y="45" textAnchor="middle" dominantBaseline="middle" fontWeight="bold">お任せニャ〜♪</text>
+                                                </svg>
+                                                <img src="/images/fukidashi.png" alt="説明" style={{ maxWidth: "300px", height: "auto" }} />
+
+                                            </>
+                                        )
+                                    }
+                                    <button type="button" className="btn btn-primary" onClick={this.handleNextPage}>
+                                        診察を受ける
+                                    </button>
+                                </div>
+
+                            </div>
+                            <br/>                        
+                        </>
+                    )
+                }
+
+
+                {
+                    (this.state.customInputs.output_text !== "")
                     && (
                         <>
                             <div id="prescription-card" className="fade-in">
@@ -729,20 +812,38 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                             <textarea
                                                 name="output_area"
                                                 disabled={true}
-                                                value={this.state.output_text}
+                                                value={this.state.customInputs.output_text}
                                                 className="card-text form-control"
                                                 rows={10}
                                             />
                                         </div>
                                         <button
                                             type="button"
-                                            className={`btn ${this.state.copied ? "btn-success" : "btn-primary"} position-absolute`}
+                                            className={`btn ${this.state.customInputs.copied ? "btn-success" : "btn-primary"} position-absolute`}
                                             style={{ top: '80px', right: '20px' }}
                                             onClick={this.handleCopy}>
-                                        {this.state.copied ? "コピーしました！" : "コピー"}
+                                        {this.state.customInputs.copied ? "コピーしました！" : "コピー"}
                                         </button>
+                                        {
+                                            (
+                                            (this.state.customInputs.record_ok === "ok")
+                                            )&& (
+                                                <> 
+                                                    <br/>
+                                                    <p>サービス品質向上のため、以下の情報を記録します</p>
+                                                    <textarea
+                                                        name="record_area"
+                                                        disabled={true}
+                                                        value={this.state.customInputs.custom_record}
+                                                        className="card-text form-control"
+                                                        rows={1}
+                                                    />
+                                                </>
+                                            )
+                                        } 
+                                        <br/>
                                         <div className="text-center">
-                                            <a href={`https://chatgpt.com/?q=${this.state.output_text}`} target="_blank" rel="noopener noreferrer">
+                                            <a href={`https://chatgpt.com/?q=${encodeURIComponent(this.state.customInputs.output_text)}`} target="_blank" rel="noopener noreferrer">
                                                 <button type="button" className="btn btn-primary display-7 text-center">
                                                     このまま、ChatGPTで質問始めるニャ
                                                 </button>
@@ -751,11 +852,15 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     </div>
                                 </fieldset>
                             </div>      
-                            
+ 
+
                         </>
                     )
                 }
-            </form>      
+
+
+          
+            </form>
             </div>
     }
 }
