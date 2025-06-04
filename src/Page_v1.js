@@ -31,6 +31,7 @@ class Page_v1 extends React.Component{
                 showSpeech: false,
                 record_ok: 'unknown',
                 custom_record: '',
+                display_record: '',
             },
             errors: {
                 school: '',
@@ -60,11 +61,20 @@ class Page_v1 extends React.Component{
         const maxLength = 100;
         const safeValue = value.slice(0, maxLength);  // カット
 
+        
+        let input_display_record=this.state.customInputs.custom_record;
+
+        if(safeValue !== "ok"){
+            input_display_record = "入力情報を記録しないニャ"
+        }
+
+
         this.setState(
             prevState => ({
                 customInputs: {
                 ...prevState.customInputs,
                 [name]: safeValue,
+                display_record: input_display_record,
                 }
             }),
             ()=>{
@@ -101,6 +111,7 @@ class Page_v1 extends React.Component{
 
     handleCopy = () => {
         console.log("コピー関数起動")
+        this.sendDataToServer();        
         navigator.clipboard.writeText(this.state.customInputs.output_text).then(() => {
             this.setState(prevState => ({
                 customInputs: {
@@ -113,22 +124,31 @@ class Page_v1 extends React.Component{
         });
     };
 
+    handleSendGPT = () =>{
+        console.log("ChatGPTへ送信");
+        this.sendDataToServer();
+    }
+
     sendDataToServer = async () => {
         const localCustomInputs = { ...this.state.customInputs };
         for (const key in localCustomInputs) {
             localCustomInputs[key] = this.getSafetyString(localCustomInputs[key]);
         }
 
-        if(localCustomInputs["record_ok"] !== "ok"){
-            return;
-        }
-
-        const data = {
+        let data = {
             school: localCustomInputs["school"],
             grade: localCustomInputs["grade"],
             gender: localCustomInputs["gender"],
             route: localCustomInputs["route"]
         };
+
+        if(localCustomInputs["record_ok"] !== "ok"){
+            data["school"]="record_ng";
+            data["grade"]="record_ng";
+            data["gender"]="record_ng";
+            data["route"]="record_ng";
+        }
+
         console.log(data);
 
         const response = await fetch("/api/save_data.php", {
@@ -293,20 +313,28 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
         });
         */
 
-        let record_string=`${school_string}の${grade_string}で、${gender_string}の方が、${choiced_route_for_record}`
+        let input_custom_record=`${school_string}の${grade_string}で、${gender_string}の方が、${choiced_route_for_record}`
+
+        
+        let input_display_record=input_custom_record;
+        if(localCustomInputs["record_ok"] !== "ok"){
+            input_display_record = "入力情報を記録しないニャ"
+        }
+
 
         this.setState(prevState => ({
             customInputs: {
             ...prevState.customInputs,
             output_text: safety_output_prompt,
-            custom_record: record_string
+            custom_record: input_custom_record,
+            display_record: input_display_record
             }
         }), ()=>{
             // スクロールして処方箋に移動
             setTimeout(() => {
                 const element = document.getElementById("prescription-card");
                 element?.scrollIntoView({ behavior: "smooth" });
-            }, 100);
+            }, 200);
         });
 
         const isValid = this.validateRequiredInputs();
@@ -316,8 +344,6 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
             alert("入力してない項目があるニャ！");
             return;
         }
-
-        this.sendDataToServer();
     }
 
     render(){
@@ -325,6 +351,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
             <h1 className="display-4 text-center">ミライエ・ユメミルクリニック</h1>
             <h1 className="display-6 text-center">進学・就職科</h1>
             <br/>
+
             <form>
                 <fieldset className="card">
                     <div className="card-header card-head-yellow">
@@ -838,7 +865,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                     </div>
                                     <div className="card-body">
                                         {/* ベンジャミン先生の処方箋 */}
-                                        <div className="position-relative">
+                                        <div>
                                             <textarea
                                                 name="output_area"
                                                 disabled={true}
@@ -847,16 +874,9 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                                 rows={10}
                                             />
                                         </div>
-                                        <button
-                                            type="button"
-                                            className={`btn ${this.state.customInputs.copied ? "btn-success" : "btn-primary"} position-absolute`}
-                                            style={{ top: '80px', right: '20px' }}
-                                            onClick={this.handleCopy}>
-                                        {this.state.customInputs.copied ? "コピーしました！" : "コピー"}
-                                        </button>
                                         {
                                             (
-                                            (this.state.customInputs.record_ok === "ok")
+                                            true
                                             )&& (
                                                 <> 
                                                     <br/>
@@ -864,7 +884,7 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                                     <textarea
                                                         name="record_area"
                                                         disabled={true}
-                                                        value={this.state.customInputs.custom_record}
+                                                        value={this.state.customInputs.display_record}
                                                         className="card-text form-control"
                                                         rows={1}
                                                     />
@@ -872,13 +892,32 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
                                             )
                                         } 
                                         <br/>
-                                        <div className="text-center">
-                                            <a href={`https://chatgpt.com/?q=${encodeURIComponent(this.state.customInputs.output_text)}`} target="_blank" rel="noopener noreferrer">
-                                                <button type="button" className="btn btn-primary display-7 text-center">
-                                                    このまま、ChatGPTで質問始めるニャ
-                                                </button>
-                                            </a>
-                                        </div>
+
+                                        <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mt-3">
+                                        <a
+                                            href={`https://chatgpt.com/?q=${encodeURIComponent(this.state.customInputs.output_text)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary"
+                                                style={{ minWidth: "350px"}} // ← ここで幅固定
+                                                onClick={this.handleSendGPT}
+                                            >
+                                            ここを押したら、ChatGPTで質問始めるニャ
+                                            </button>
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            className={`btn ${this.state.customInputs.copied ? "btn-success" : "btn-primary"}`}
+                                            style={{ minWidth: "350px"}} // ← ここで幅固定
+                                            onClick={this.handleCopy}
+                                        >
+                                            {this.state.customInputs.copied ? "文章コピーしたニャ！" : "文章コピーをしたい人はこっち押してニャ"}
+                                        </button>
+                                        </div>                                        
                                     </div>
                                 </fieldset>
                             </div>      
@@ -890,15 +929,17 @@ ${input_school_name_string}${input_company_name_string}自己PRを考えるの�
 
 
           
-            </form>
-            <p>
                 <div className="text-start">
-                主催：ながおか・若者・しごと機構　<a href="https://www.instagram.com/wakamonokikou/">インスタグラムはこちら</a><br/>
+                    <p>
+                    主催：ながおか・若者・しごと機構　<a href="https://www.instagram.com/wakamonokikou/">インスタグラムはこちら</a><br/>
+                    </p>
                 </div>
                 <div className="text-end">
-                企画：地域おこし協力隊　桑原崚介　<a href="https://www.instagram.com/kuwabara128/">インスタグラムはこちら</a>
+                    <p>
+                    企画：地域おこし協力隊　桑原崚介　<a href="https://www.instagram.com/kuwabara128/">インスタグラムはこちら</a>
+                    </p>
                 </div>
-            </p>
+                </form>
             </div>
     }
 }
